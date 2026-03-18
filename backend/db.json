@@ -1,0 +1,82 @@
+{
+  "workflows": [
+    {
+      "id": "20879b7e-fb86-4bc2-81ac-ca1bc46da1a7",
+      "name": "Expense Approval",
+      "version": 1,
+      "isActive": true,
+      "inputSchema": "{\"amount\":{\"type\":\"number\",\"required\":true},\"country\":{\"type\":\"string\",\"required\":true},\"priority\":{\"type\":\"string\",\"required\":true,\"allowed_values\":[\"High\",\"Medium\",\"Low\"]}}",
+      "steps": [
+        {
+          "id": "4ad1e581-e74b-43d7-97e8-164c2852b58f",
+          "name": "Manager Approval",
+          "stepType": "approval",
+          "order": 1,
+          "metadata": {
+            "assignee": "manager@example.com"
+          },
+          "rules": [
+            {
+              "id": "ff5c0698-ac07-44dd-9cf5-bfa8f33ac330",
+              "condition": "amount > 500",
+              "nextStepId": "24022102-f72a-4326-91d8-a1d9b9867d01",
+              "priority": 1,
+              "createdAt": "2026-03-16T16:35:34.056Z"
+            },
+            {
+              "id": "f788276c-b62c-4fbb-9699-55b16d3053c7",
+              "condition": "DEFAULT",
+              "nextStepId": null,
+              "priority": 2,
+              "createdAt": "2026-03-16T16:35:34.068Z"
+            }
+          ],
+          "createdAt": "2026-03-16T16:35:34.018Z"
+        },
+        {
+          "id": "24022102-f72a-4326-91d8-a1d9b9867d01",
+          "name": "Finance Review",
+          "stepType": "task",
+          "order": 2,
+          "rules": [],
+          "createdAt": "2026-03-16T16:35:34.035Z"
+        }
+      ],
+      "createdAt": "2026-03-16T16:35:33.940Z"
+    }
+  ],
+  "executions": [
+    {
+      "id": "e2be9224-b763-468c-8cdc-39640610332f",
+      "workflowId": "20879b7e-fb86-4bc2-81ac-ca1bc46da1a7",
+      "status": "completed",
+      "data": {
+        "amount": "100",
+        "country": "india",
+        "priority": "nil"
+      },
+      "logs": [
+        {
+          "stepName": "Manager Approval",
+          "stepType": "approval",
+          "evaluatedRules": [
+            {
+              "rule": "amount > 500",
+              "result": false
+            },
+            {
+              "rule": "DEFAULT",
+              "result": true
+            }
+          ],
+          "selectedNextStep": "End",
+          "status": "completed",
+          "startedAt": "2026-03-16T16:37:14.705Z",
+          "duration": 8
+        }
+      ],
+      "startedAt": "2026-03-16T16:37:14.700Z",
+      "endedAt": "2026-03-16T16:37:14.714Z"
+    }
+  ]
+}

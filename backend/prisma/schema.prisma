@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Workflow {
+  id           String      @id @default(uuid())
+  name         String
+  version      Int         @default(1)
+  isActive     Boolean     @default(true)
+  inputSchema  String      // Store as JSON string
+  startStepId  String?
+  steps        Step[]
+  executions   Execution[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+model Step {
+  id           String      @id @default(uuid())
+  workflowId   String
+  workflow     Workflow    @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  name         String
+  stepType     String      // "task", "approval", "notification"
+  order        Int
+  metadata     String      @default("{}") // Store as JSON string
+  rules        Rule[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@index([workflowId])
+}
+
+model Rule {
+  id           String      @id @default(uuid())
+  stepId       String
+  step         Step        @relation(fields: [stepId], references: [id], onDelete: Cascade)
+  condition    String      // Logical expression
+  nextStepId   String?     // null ends workflow
+  priority     Int
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@index([stepId])
+}
+
+model Execution {
+  id              String      @id @default(uuid())
+  workflowId      String
+  workflow        Workflow    @relation(fields: [workflowId], references: [id])
+  workflowVersion Int
+  status          String      @default("pending") // "pending", "in_progress", "completed", "failed", "canceled"
+  data            String      // Store input values as JSON string
+  currentStepId   String?
+  retries         Int         @default(0)
+  triggeredBy     String?
+  logs            StepLog[]
+  startedAt       DateTime    @default(now())
+  endedAt         DateTime?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([workflowId])
+}
+
+model StepLog {
+  id                String      @id @default(uuid())
+  executionId       String
+  execution         Execution   @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  stepName          String
+  stepType          String
+  evaluatedRules    String      // JSON string of evaluations
+  selectedNextStep  String?
+  status            String      // "completed", "failed", "pending"
+  approverId        String?
+  errorMessage      String?
+  startedAt         DateTime    @default(now())
+  endedAt           DateTime?
+  duration          Int?        // In milliseconds
+
+  @@index([executionId])
+}
